@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>snakeGame</title>
+	<link href="https://fonts.googleapis.com/css?family=Arima+Madurai" rel="stylesheet">
+	<style type="text/css">
+		body{
+			margin: 0;
+			padding: 0;
+			background-color: #111; 
+		}
+		html{
+			overflow: hidden;
+		}
+		#txt{
+			position: absolute;
+			top: 50%;
+			right: 50%;
+			color: yellow;
+			text-align: center;
+			font-size: 70px;
+			font-family: 'Arima Madurai', cursive;
+		}
+		.one{
+			position: relative;
+		}
+		.show{
+			opacity: 1;
+		}
+		.hide{
+			opacity: 0;
+		}
+
+	</style>
+</head>
+<body>
+	<div class="one">
+		<canvas id="canvas" ></canvas>
+		<div id="txt" ></div>
+	</div>
+
+	<script type="text/javascript" >
+	//ts-check
+		const canv = document.querySelector('#canvas');
+		const ctx = canv.getContext('2d');
+		let w = canv.width = Math.floor(window.innerWidth / 10)*10; 
+		let h = canv.height = Math.floor(window.innerHeight / 10)*10;
+		let bgColour = '#222';
+		let scoreValue=0;
+		let score = document.querySelector('#txt');
+				score.className = 'hide';
+				score.innerHTML=scoreValue;
+		let scale=1;
+				ctx.scale(scale, scale); //there you can choose scaling or just 'ctrl'+scroll and F5
+		let fps = parseInt(prompt('choose your speed(fps):', 30));
+		let appleQuantity = parseInt(prompt('choose number of apples',3));	//scale defoult
+		let snake={
+			x: 0, 
+			y: 0,
+			tail: 5,
+			trail: [],
+			w: 10,
+			h: 10,
+			vx: 10,
+			vy: 0,
+			colour: '#A7E80B',
+			xOld: NaN,
+			yOld: NaN,
+		};
+		let vector ='right';//means snake.vx
+		let colour=[ //there may be add or change colours in hex-code
+		'#EE411C', '#F5CA17', '#96F517', '#4BF885',	'#13F6D3',
+		'#138CF6', '#2413F6', '#B813F6', '#FC00FF', '#FF0028'
+		];
+
+		function randomH(){
+			return Math.floor( Math.random() * h / scale /10) *10
+		}
+		function randomW(){
+			return Math.floor( Math.random() * w / scale / 10) *10
+		}
+		let apples=[];
+			for (let i = 0; i < appleQuantity; i++){
+				apples.push({
+					x: randomW(),
+					y: randomH()
+				});
+			}
+		let apple = {
+			w: 10,
+			h: 10,
+			colour: '#FF8D12',
+		};
+		let plyaNumber = 0;
+
+		function drowText(text){
+			score.innerHTML=text;
+			score.className = 'show';
+			setTimeout(() => {score.className='hide'},2000);
+		}
+
+		function update(){
+			snake.x += snake.vx;
+			snake.y += snake.vy;
+			if (snake.x < 0) snake.x = w/scale - 10;
+			if (snake.x > w/scale - 10) snake.x = 0;
+			if (snake.y < 0) snake.y = h/scale - 10;
+			if (snake.y > h/scale - 10) snake.y = 0;
+
+			ctx.fillStyle = bgColour;
+			ctx.fillRect(0, 0, w, h); //drow screen
+
+			ctx.fillStyle = snake.colour; //this or changing colours vvv
+			for (let i = snake.trail.length; i--;){
+				let pos = snake.trail[i];
+				//ctx.fillStyle = colour[Math.floor(Math.random()*colour.length)]; it may be put in other colour-setting
+				ctx.fillRect(pos.x, pos.y, snake.w, snake.h);
+				// ctx.strokeStyle = bgColour;
+				// ctx.strokeRect(pos.x, pos.y, snake.w, snake.h); //border on the snake
+				setTimeout(()=>{
+					if (snake.x === pos.x && snake.y === pos.y){
+					snake.tail = 5 ; //tail eat reset 
+					let scoreOld=scoreValue;
+					scoreValue = 0;
+					plyaNumber++;
+					document.title =' ' + plyaNumber + ') ' + scoreOld + ' | ' + document.title;
+					alert('your score ^^^ in the title \n keep on playing or push F5 to restart');
+					drowText('start score: 0');
+					snake.x=0;
+					snake.y=10;
+					snake.vx=10;
+					snake.vy=0;
+					};
+				}, 100);
+			}
+			
+			snake.trail.push({
+				x: snake.x,
+				y: snake.y
+			});
+
+			while (snake.trail.length > snake.tail){
+				snake.trail.shift();
+			}
+			
+ 			for (let i = 0; i < apples.length; i++)
+ 			{	
+				if (snake.x == apples[i].x && snake.y == apples[i].y
+				// 	snake.x >= apples[i].x && snake.x <= apples[i].x+apple.w 												//fckng 
+				// && snake.y >= apples[i].y && snake.y <= apples[i].y+apple.h ||											//condition 
+				// snake.x >= apples[i].x && snake.x <= apples[i].x+apple.w 														//to 
+				// && snake.y+snake.h >= apples[i].y && snake.y+snake.h <= apples[i].y+apple.h ||			//eat 
+				// snake.x+snake.w >= apples[i].x && snake.x+snake.w <= apples[i].x+apple.w 						//the 
+				// && snake.y+snake.h >= apples[i].y && snake.y+snake.h <= apples[i].y+apple.h || 			//apple (not cell)
+				// snake.x+snake.w >= apples[i].x && snake.x+snake.w <= apples[i].x+apple.w
+				// && snake.y >= apples[i].y && snake.y <= apples[i].y+apple.h
+				)
+				{	snake.tail++;
+					apples[i].x = randomW();
+					apples[i].y = randomH();
+					scoreValue++;
+					drowText(scoreValue);
+				}
+			}
+			ctx.fillStyle = apple.colour;
+			for (let i=0; i<apples.length; i++){
+				ctx.fillRect(apples[i].x, apples[i].y, apple.w, apple.h);
+			}
+      if (scoreValue === 216) drowText('Error216'); //the easter egg
+      if (scoreValue === 219) drowText('(____((__219___()~~~'); //the easter egg
+	
+		} //update-end
+
+		function onKeyDown(event){
+			switch (event.keyCode){
+ 					case 38://up'
+	 					if(vector !='down'){
+	 						snake.vx = 0;
+	 						snake.vy = -snake.h;
+	 						vector = 'up';
+	 					}
+	 					break;
+ 					case 39://right
+	 					if(vector!='left'){
+	 						snake.vx = snake.w;
+	 						snake.vy = 0;
+	 						vector = 'right';
+	 					}
+	 					break;
+ 					case 40://down
+	 					if(vector!='up'){
+	 						snake.vx = 0;
+	 						snake.vy = snake.h;
+	 						vector = 'down';
+	 					}
+ 						break;
+ 					case 37://left
+	 					if(vector!='right'){
+	 						snake.vx = -snake.w;
+	 						snake.vy = 0;
+	 						vector = 'left';
+	 					}
+ 					break;
+ 					case 192:  //  ` -Easter egg
+	 					snake.tail++;
+	 					scoreValue++;
+	 					drowText(scoreValue);
+	 					break;
+ 			} 
+ 			//console.log(event.keyCode); //keyboard button Code
+ 		}//onKeyDown-end
+
+	 	document.addEventListener('keydown', onKeyDown);
+		let upd = setInterval(update, 1000 / fps);
+
+		 </script>
+		</body>
+        </html>
+        
