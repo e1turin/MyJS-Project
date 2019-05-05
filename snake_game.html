@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>snakeGame</title>
+	<link href="https://fonts.googleapis.com/css?family=Arima+Madurai" rel="stylesheet">
+	<style type="text/css">
+		body{
+			margin: 0;
+			padding: 0;
+		}
+		html{
+			overflow: hidden;
+		}
+		#txt{
+			position: absolute;
+			top: 50%;
+			right: 50%;
+			color: yellow;
+			text-align: center;
+			font-size: 70px;
+			font-family: 'Arima Madurai', cursive;
+		}
+		.one{
+			position: relative;
+		}
+		.show{
+			opacity: 1;
+		}
+		.hide{
+			opacity: 0;
+		}
+
+	</style>
+</head>
+<body>
+	<div class="one">
+	<canvas id="canvas" ></canvas>
+	<div id="txt" ></div>
+	</div>
+
+	<script type="text/javascript" >
+			const canv = document.querySelector('#canvas');
+		const ctx = canv.getContext('2d');
+		let score = document.querySelector('#txt');
+		score.className = 'hide';
+		let scoreV=0;
+		let scl=10;	//scale
+		score.innerHTML=scoreV;
+		let w = canv.width = window.innerWidth; 
+		let h = canv.height = window.innerHeight;
+		let snake={
+			x: 5, 
+			y: 5,
+			vx: 1,
+			vy: 0,
+			tail: 5,
+			trail: [] 
+		};
+		let vector='right';
+
+		let apple = {
+			x: 15, 
+			y: 15 
+		};
+		
+			let fps = parseInt(prompt('choose your fps~speed:', 15));
+			let count = 0;
+
+
+
+
+			ctx.scale(scl, scl);
+			document.addEventListener('keydown', onKeyDown);
+			setInterval(update, 1000 / fps);
+
+			function drowText(text){
+				score.innerHTML=text;
+				score.className = 'show';
+				setTimeout(() => {score.className='hide'},1500);
+			}
+
+			function update(){
+				snake.x += snake.vx;
+				snake.y += snake.vy;
+				if (snake.x < 0){ snake.x = w/scl - 1;}
+				if (snake.x > w/scl - 1){ snake.x = 0;}
+				if (snake.y < 0){ snake.y = h/scl - 1;}
+				if (snake.y > h/scl - 1) {snake.y = 0;}
+					//console.log(snake.vx);
+					//console.log(snake.vy);
+
+					ctx.fillStyle = 'black';
+					ctx.fillRect(0, 0, w, h);
+					
+					ctx.fillStyle = 'lime';
+					for (let i = snake.trail.length; i--;){
+						let pos = snake.trail[i];
+						ctx.fillRect(pos.x, pos.y, 1, 1);
+
+						if (snake.x === pos.x && snake.y === pos.y){
+							snake.tail = 5 ; //сброс при касании
+							let scoreOld=scoreV;
+							scoreV = 0;
+							count++;
+							document.title =' ' + count + ') ' + scoreOld + ' | ' + document.title;
+							alert('your score ^^^ in title  \n keep on playing or push F5 to restart');
+							drowText('now your score: 0');
+							
+							
+
+						}
+					}
+					snake.trail.push({
+						x: snake.x,
+						y: snake.y
+					});
+
+					if(scoreV === 219) drowText('(____((__219___()~~~'); //easter egg
+					while (snake.trail.length > snake.tail){
+						snake.trail.shift();
+					}
+
+					if (snake.x === apple.x && snake.y === apple.y){
+						snake.tail++;
+						apple.x = Math.floor(Math.random() * w/scl);
+						apple.y = Math.floor(Math.random() * h/scl);
+						scoreV++;
+						drowText(scoreV);
+					}
+					ctx.fillStyle = 'red';
+					ctx.fillRect(apple.x, apple.y, 1, 1);
+
+					if(scoreV === 216) drowText('Error216'); //easter egg
+					
+					
+				} //update-end
+
+
+				function onKeyDown(event){
+					switch (event.keyCode){
+		 					case 38://up'
+		 					if(vector!='down'){
+		 						snake.vx = 0;
+		 						snake.vy = -1;
+		 						vector = 'up';
+		 					}
+		 					break;
+		 					case 39://right
+		 					if(vector!='left'){
+		 						snake.vx = 1;
+		 						snake.vy = 0;
+		 						vector = 'right';
+		 					}
+		 					break;
+		 					case 40://down
+		 					if(vector!='up'){
+		 						snake.vx = 0;
+		 						snake.vy = 1;
+		 						vector = 'down';
+		 					}
+		 					break;
+
+		 					case 37://left
+		 					if(vector!='right'){
+		 						snake.vx = -1;
+		 						snake.vy = 0
+		 						vector = 'left';
+		 					}
+		 					break;
+		 					case 192:  //  ` -Easter egg
+		 					snake.tail++;
+		 					scoreV++;
+		 					drowText(scoreV);
+		 					break;
+		 					default:
+		 				}
+		 						//onKeyDown-end
+
+		 		//console.log(event.keyCode);
+		 	}
+		 
+
+
+
+
+
+
+
+
+	</script>
+</body>
+</html>
